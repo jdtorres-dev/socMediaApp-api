@@ -1,4 +1,4 @@
-package com.socMediaApp.socMediaAPI;
+package com.socMediaApp;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
