@@ -6,16 +6,15 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-public class user {
+public class post {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String username;
-
-    private String email;
-
-    private String password;
+    private String postBody;
 
     private String imageUrl;
+
+    @ManyToOne
+    private user userId;
 }
