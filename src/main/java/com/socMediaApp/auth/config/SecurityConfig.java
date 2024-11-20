@@ -1,59 +1,73 @@
 package com.socMediaApp.auth.config;
 
 import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
+import com.socMediaApp.filter.AuthEntryPoint;
 import com.socMediaApp.filter.JwtAuthenticationFilter;
 import com.socMediaApp.service.UserDetailsServiceImplementation;
+
+import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Autowired
-    UserDetailsServiceImplementation userDetailsService;
+    private final UserDetailsServiceImplementation userDetailsService;
+    private final JwtAuthenticationFilter authenticationFilter;
+    private final AuthEntryPoint exceptionHandler;
 
-    @Autowired
-    JwtAuthenticationFilter jwtAuthenticationFilter;
-
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http
-            .csrf(AbstractHttpConfigurer::disable)
-            .authorizeHttpRequests(req -> req
-                .requestMatchers("/login", "/signup", "/user/check-user", "/user/check-username", "/user/check-email").permitAll()
-                .anyRequest().authenticated()
-            )
-            .userDetailsService(userDetailsService) 
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-            .build();
+    public SecurityConfig(UserDetailsServiceImplementation userDetailsService, JwtAuthenticationFilter authenticationFilter, AuthEntryPoint exceptionHandler) {
+        this.exceptionHandler = exceptionHandler;
+        this.userDetailsService = userDetailsService;
+        this.authenticationFilter = authenticationFilter;
     }
-
-    @Bean
+     public void configureGlobal(AuthenticationManagerBuilder auth)
+            throws Exception {
+        auth.userDetailsService(userDetailsService).passwordEncoder(
+                new BCryptPasswordEncoder());
+    }
+     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception{
-        return configuration.getAuthenticationManager();
+    public AuthenticationManager authenticationManager(
+            AuthenticationConfiguration authConfig)
+            throws Exception {
+        return authConfig.getAuthenticationManager();
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http.csrf((csrf) -> csrf.disable())
+                .cors(withDefaults())
+                .sessionManagement(
+                        (sessionManagement) ->
+                        sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests((authorizeHttpRequests) ->
+                authorizeHttpRequests
+                    .requestMatchers("*").permitAll()
+                    .anyRequest().authenticated())
+                    .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                    .exceptionHandling((exceptionHandling) -> exceptionHandling.authenticationEntryPoint(exceptionHandler));
+        return http.build();
     }
 
     @Bean
@@ -61,12 +75,19 @@ public class SecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration corsConfiguration = new CorsConfiguration();
         
-        corsConfiguration.setAllowCredentials(true);
-        corsConfiguration.setAllowedOrigins(List.of("http://localhost:3000"));  // Frontend domain (localhost for dev)
-        corsConfiguration.addAllowedHeader("*");
-        corsConfiguration.addAllowedMethod("*");
-        source.registerCorsConfiguration("/**", corsConfiguration);
+        // Allow credentials (cookies, authorization headers, etc.)
+        corsConfiguration.setAllowCredentials(false); 
         
+        // Allow only the frontend origin
+        corsConfiguration.setAllowedOriginPatterns(List.of("http://localhost:3000"));
+        
+        // Allow all headers (you can restrict to Authorization if needed)
+        corsConfiguration.addAllowedHeader("*");
+        
+        // Allow all HTTP methods (you can restrict to specific methods if needed)
+        corsConfiguration.addAllowedMethod("*");
+        
+        source.registerCorsConfiguration("/**", corsConfiguration);
         return new CorsFilter(source);
     }
 }
