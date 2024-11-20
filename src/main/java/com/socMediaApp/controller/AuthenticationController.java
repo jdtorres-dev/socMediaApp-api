@@ -1,6 +1,5 @@
 package com.socMediaApp.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -14,8 +13,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RestController
 public class AuthenticationController {
 
-    @Autowired
-    AuthenticationService authService;
+    private final AuthenticationService authService;
+
+    public AuthenticationController(AuthenticationService authService) {
+        this.authService = authService;
+    }
 
     @PostMapping("/signup")
     public ResponseEntity<AuthenticationResponse> signup(@RequestBody User request) {
