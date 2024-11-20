@@ -4,7 +4,8 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import com.socMediaApp.model.User;
 import com.socMediaApp.repository.UserRespository;
 
@@ -24,5 +25,13 @@ public class UserService {
 
     public boolean existsByEmail(String email) {
         return userRepo.existsByEmail(email);
+    }
+
+    public User getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof User) {
+            return (User) authentication.getPrincipal();
+        }
+        return null;
     }
 }
