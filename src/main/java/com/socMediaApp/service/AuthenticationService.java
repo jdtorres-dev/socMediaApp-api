@@ -1,6 +1,5 @@
 package com.socMediaApp.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -13,17 +12,20 @@ import com.socMediaApp.repository.UserRespository;
 @Service
 public class AuthenticationService {
 
-    @Autowired
-    UserRespository userRepo;
+    private final UserRespository userRepo;
 
-    @Autowired
-    PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
-    @Autowired
-    JwtService jwtService;
+    private final JwtService jwtService;
 
-    @Autowired
-    AuthenticationManager authenticationManager;
+    private final AuthenticationManager authenticationManager;
+
+    public AuthenticationService(UserRespository userRepo, PasswordEncoder passwordEncoder, JwtService jwtService, AuthenticationManager authenticationManager) {
+        this.userRepo = userRepo;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
+        this.authenticationManager = authenticationManager;
+    }
 
     public AuthenticationResponse register(User request) {
         String imageUrl = null; 
