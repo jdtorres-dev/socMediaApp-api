@@ -16,7 +16,7 @@ public class PostService {
     }
 
     public Post createPost(Post post, User user) {
-        post.setUser(user);
+       post.setUser(user);
         return postRepository.save(post);
     }
 }

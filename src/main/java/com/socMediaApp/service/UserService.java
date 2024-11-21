@@ -27,13 +27,8 @@ public class UserService {
         return userRepo.existsByEmail(email);
     }
 
-    public User getCurrentUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.getPrincipal() instanceof User) {
-            return (User) authentication.getPrincipal();
-        }
-        return null;
-    }
+    public Optional<User>  getCurrentUser(Long id) { return userRepo.findById(id); }
+
     public User updateUser(User user) {
         return userRepo.save(user);
     }

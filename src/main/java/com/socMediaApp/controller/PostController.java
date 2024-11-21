@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 
 @RestController
@@ -26,15 +27,18 @@ public class PostController {
 
     @PostMapping("/post")
     public ResponseEntity<?> createPost(@RequestBody Post post) {
-        User currentUser = userService.getCurrentUser();
+        Optional <User> currentUser = userService.getCurrentUser(post.getUser().getId());
 
-        if (currentUser == null) {
-            return ResponseEntity.status(403).body("User is not authenticated.");
-        }
+       // Post newPost = new Post();
 
-        post.setUser(currentUser);
+       //if (currentUser.isEmpty()) {
+          // return ResponseEntity.status(403).body("User is not authenticated.");
+          //  newPost.setUser(currentUser.get());
+       // }
+
+        post.setUser(currentUser.get());
         post.setCreatedDate(LocalDateTime.now());
-
+       // System.out.println(post.toString());
         Post createdPost = postRepository.save(post);
 
         return ResponseEntity.ok("Post created successfully with ID: " + createdPost.getId());

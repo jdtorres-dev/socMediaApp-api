@@ -21,18 +21,28 @@ public class Post {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String body;
 
     @Lob
     @Column(columnDefinition = "TEXT")
     private String imageUrl;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private LocalDateTime createdDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @Override
+    public String toString() {
+        return "Post{" +
+                "id=" + id +
+                ", body='" + body + '\'' +
+                ", imageUrl='" + imageUrl + '\'' +
+                ", createdDate=" + createdDate +
+                ", user=" + user +
+                '}';
+    }
 }
