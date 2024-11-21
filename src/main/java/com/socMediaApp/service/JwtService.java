@@ -52,7 +52,7 @@ public class JwtService {
     }
 
     @SuppressWarnings("deprecation")
-public String generateToken(User user) {
+        public String generateToken(User user) {
         return Jwts.builder()
                 .setSubject(user.getId().toString())
                 .setIssuedAt(new Date())

@@ -63,7 +63,7 @@ public class SecurityConfig {
                         sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests((authorizeHttpRequests) ->
                 authorizeHttpRequests
-                    .requestMatchers("*").permitAll()
+                    .requestMatchers("/login", "/signup", "/user/check-username", "/user/check-email").permitAll()
                     .anyRequest().authenticated())
                     .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class)
                     .exceptionHandling((exceptionHandling) -> exceptionHandling.authenticationEntryPoint(exceptionHandler));
@@ -74,19 +74,10 @@ public class SecurityConfig {
     public CorsFilter corsFilter() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-        
-        // Allow credentials (cookies, authorization headers, etc.)
         corsConfiguration.setAllowCredentials(false); 
-        
-        // Allow only the frontend origin
         corsConfiguration.setAllowedOriginPatterns(List.of("http://localhost:3000"));
-        
-        // Allow all headers (you can restrict to Authorization if needed)
         corsConfiguration.addAllowedHeader("*");
-        
-        // Allow all HTTP methods (you can restrict to specific methods if needed)
         corsConfiguration.addAllowedMethod("*");
-        
         source.registerCorsConfiguration("/**", corsConfiguration);
         return new CorsFilter(source);
     }
