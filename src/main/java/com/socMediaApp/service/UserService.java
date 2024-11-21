@@ -4,7 +4,8 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import com.socMediaApp.model.User;
 import com.socMediaApp.repository.UserRespository;
 
@@ -25,6 +26,8 @@ public class UserService {
     public boolean existsByEmail(String email) {
         return userRepo.existsByEmail(email);
     }
+
+    public Optional<User>  getCurrentUser(Long id) { return userRepo.findById(id); }
 
     public User updateUser(User user) {
         return userRepo.save(user);
