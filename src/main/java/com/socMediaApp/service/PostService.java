@@ -1,10 +1,14 @@
 package com.socMediaApp.service;
 
+import com.socMediaApp.dto.PostDTO;
 import com.socMediaApp.model.Post;
 import com.socMediaApp.repository.PostRepository;
 import com.socMediaApp.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class PostService {
@@ -19,4 +23,5 @@ public class PostService {
        post.setUser(user);
         return postRepository.save(post);
     }
+
 }
