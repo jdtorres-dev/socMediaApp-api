@@ -28,11 +28,6 @@ public class AuthenticationService {
     }
 
     public AuthenticationResponse register(User request) {
-        String imageUrl = null; 
-
-        if (request.getImageUrl() != null && !request.getImageUrl().isEmpty()) {
-            imageUrl = request.getImageUrl(); 
-        }
 
         User user = new User();
         user.setName(request.getName());
