@@ -6,6 +6,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,6 +30,11 @@ public class UserController {
     @Autowired
     UserRespository userRepo;
 
+    private final PasswordEncoder passwordEncoder;
+
+    public UserController(PasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @GetMapping("/check-username")
     public ResponseEntity<?> checkUsername(@RequestParam(required = false) String username) {
@@ -78,14 +84,20 @@ public class UserController {
         try {
             User existing = result.get();
         
-            BeanUtils.copyProperties(user, existing, "id"); 
+            BeanUtils.copyProperties(user, existing, "id", "password"); 
 
             existing.setName(user.getName());
             existing.setUsername(user.getUsername());
             existing.setEmail(user.getEmail());
             existing.setImageUrl(user.getImageUrl());
-            existing.setPassword(user.getPassword());
 
+            if (user.getPassword() != null && !user.getPassword().isEmpty()) {
+                String hashedPassword = passwordEncoder.encode(user.getPassword());
+                existing.setPassword(hashedPassword);
+            } else {
+                existing.setPassword(existing.getPassword());
+            }
+            
             userService.updateUser(existing);
 
             return ResponseEntity.ok("User update successful");
@@ -95,6 +107,23 @@ public class UserController {
         }
     }
 
+    @GetMapping("/id")
+    public ResponseEntity<?> getUserById(@RequestParam Long id) {
+        Optional<User> result = userRepo.findById(id); 
+        
+        try {
+
+            if(result.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("No record found");
+            }
+
+            return ResponseEntity.ok(result);
+        } catch(Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An error occurred while processing the request.");
+        }
+    }
 
 
 
