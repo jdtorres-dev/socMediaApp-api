@@ -1,5 +1,7 @@
 package com.socMediaApp.controller;
 
+import com.socMediaApp.dto.CommentDTO;
+import com.socMediaApp.dto.CommentDTOMapper;
 import com.socMediaApp.dto.PostDTO;
 import com.socMediaApp.dto.PostDTOMapper;
 import com.socMediaApp.model.Comment;
@@ -39,6 +41,9 @@ public class PostController {
 
     @Autowired
     PostDTOMapper postDTOMapper;
+
+    @Autowired
+    CommentDTOMapper coomentDTOMapper;
 
     @PostMapping("/createPost")
     public ResponseEntity<?> createPost(@RequestBody Post post) {
@@ -107,5 +112,23 @@ public class PostController {
 
         return ResponseEntity.ok("Comment created successfully with ID: " + createdComment.getId());
     }
+
+    @GetMapping("/getCommentsByPostId/{postId}")
+    public ResponseEntity<List<CommentDTO>> getCommentsByPostId(@PathVariable Long postId) {
+        try {
+
+            List<CommentDTO> comments = commentRepository.findByPostIdOrderByCreatedDateDesc(postId)
+                    .stream()
+                    .map(coomentDTOMapper)
+                    .collect(Collectors.toList());
+
+            // Return the list with a 200 OK status
+            return ResponseEntity.ok(comments);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
 
 }
