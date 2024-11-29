@@ -17,12 +17,14 @@ public class CommentDTO {
     private LocalDateTime createdDate;
     private PostUserDTO user;
     private PostDTO post;
+    private Boolean isDelete;
 
-    public CommentDTO( Long id, String commentBody, LocalDateTime createdDate, PostUserDTO user, PostDTO post) {
+    public CommentDTO( Long id, String commentBody, LocalDateTime createdDate, PostUserDTO user, PostDTO post, Boolean isDelete) {
         this.id = id;
         this.commentBody = commentBody;
         this.createdDate = createdDate;
         this.user = user;
         this.post = post;
+        this.isDelete = isDelete;
     }
 }
