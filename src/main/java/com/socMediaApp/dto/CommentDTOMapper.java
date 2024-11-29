@@ -22,7 +22,8 @@ public class CommentDTOMapper implements Function<Comment, CommentDTO> {
                 comment.getCommentBody(),
                 comment.getCreatedDate(),
                 postUserDTOMapper.apply(comment.getUser()),
-                postDTOMapper.apply(comment.getPost())
+                postDTOMapper.apply(comment.getPost()),
+                comment.getIsDelete()
         );
     }
     }

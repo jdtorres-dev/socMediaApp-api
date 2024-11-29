@@ -117,7 +117,7 @@ public class PostController {
     public ResponseEntity<List<CommentDTO>> getCommentsByPostId(@PathVariable Long postId) {
         try {
 
-            List<CommentDTO> comments = commentRepository.findByPostIdOrderByCreatedDateDesc(postId)
+            List<CommentDTO> comments = commentRepository.findByPostIdAndIsDeleteFalseOrderByCreatedDateDesc(postId)
                     .stream()
                     .map(coomentDTOMapper)
                     .collect(Collectors.toList());
@@ -129,6 +129,25 @@ public class PostController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
+
+    @PutMapping("/deleteComment")
+    public ResponseEntity<?> softDeleteComment(@RequestParam Long commentId) {
+        try {
+            Optional<Comment> commentOptional = commentRepository.findById(commentId);
+
+            if (commentOptional.isPresent()) {
+                Comment comment = commentOptional.get();
+                comment.setIsDelete(true);
+                commentRepository.save(comment);
+                return ResponseEntity.ok("Comment successfully deleted!");
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
 
 
 }
