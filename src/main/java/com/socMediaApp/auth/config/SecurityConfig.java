@@ -72,7 +72,9 @@ public class SecurityConfig {
                             "/getPost/{id}",
                             "/post/createComment",
                             "/getCommentsByPostId/{postId}",
-                            "post/deleteComment").permitAll()
+                            "/post/deleteComment",
+                            "/post/updateComment",
+                            "/post/getCommentById").permitAll()
                     .anyRequest().authenticated())
                     .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class)
                     .exceptionHandling((exceptionHandling) -> exceptionHandling.authenticationEntryPoint(exceptionHandler));
