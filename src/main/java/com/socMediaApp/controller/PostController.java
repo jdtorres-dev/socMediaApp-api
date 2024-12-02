@@ -130,6 +130,22 @@ public class PostController {
         }
     }
 
+    @GetMapping("/getCommentById")
+    public ResponseEntity<CommentDTO> getCommentById(@RequestParam Long id) {
+        try {
+            CommentDTO comment = commentRepository.findById(id)
+                    .map(coomentDTOMapper)
+                    .orElse(null);
+            if (comment == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            }
+            return ResponseEntity.ok(comment);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+
     @PutMapping("/deleteComment")
     public ResponseEntity<?> softDeleteComment(@RequestParam Long commentId) {
         try {
@@ -140,6 +156,24 @@ public class PostController {
                 comment.setIsDelete(true);
                 commentRepository.save(comment);
                 return ResponseEntity.ok("Comment successfully deleted!");
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    @PutMapping("/updateComment")
+    public ResponseEntity<?> updateComment(@RequestParam Long commentId, @RequestParam String commentBody) {
+        try {
+            Optional<Comment> commentOptional = commentRepository.findById(commentId);
+
+            if (commentOptional.isPresent()) {
+                Comment comment = commentOptional.get();
+                comment.setCommentBody(commentBody);
+                commentRepository.save(comment);
+                return ResponseEntity.ok("Comment successfully updated!");
             } else {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
             }
