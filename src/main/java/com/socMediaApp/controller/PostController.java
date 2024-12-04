@@ -1,13 +1,12 @@
 package com.socMediaApp.controller;
 
-import com.socMediaApp.dto.CommentDTO;
-import com.socMediaApp.dto.CommentDTOMapper;
-import com.socMediaApp.dto.PostDTO;
-import com.socMediaApp.dto.PostDTOMapper;
+import com.socMediaApp.dto.*;
 import com.socMediaApp.model.Comment;
+import com.socMediaApp.model.LikeUnlikePost;
 import com.socMediaApp.model.Post;
 import com.socMediaApp.model.User;
 import com.socMediaApp.repository.CommentRepository;
+import com.socMediaApp.repository.LikeUnlikePostRepo;
 import com.socMediaApp.repository.PostRepository;
 import com.socMediaApp.repository.UserRespository;
 import com.socMediaApp.service.PostService;
@@ -40,10 +39,16 @@ public class PostController {
     private CommentRepository commentRepository;
 
     @Autowired
+    private LikeUnlikePostRepo likePostRepo;
+
+    @Autowired
     PostDTOMapper postDTOMapper;
 
     @Autowired
     CommentDTOMapper coomentDTOMapper;
+
+    @Autowired
+    LikeUnlikePostDTOMapper likeUnlikePostDTOMapper;
 
     @PostMapping("/createPost")
     public ResponseEntity<?> createPost(@RequestBody Post post) {
@@ -182,6 +187,57 @@ public class PostController {
         }
     }
 
+    @PostMapping("/likePost")
+    public ResponseEntity<?> likePost(@RequestBody LikeUnlikePost likePost) {
+        Optional <User> currentUser = userService.getCurrentUser(likePost.getUser().getId());
+        Optional <Post> currentPost = postService.getCurrentPost(likePost.getPost().getId());
+
+        likePost.setPost(currentPost.get());
+        likePost.setUser(currentUser.get());
+        likePost.setIsLike(true);
+        likePost.setCreatedDate(LocalDateTime.now());
+        LikeUnlikePost likePostS = likePostRepo.save(likePost);
+
+        return ResponseEntity.ok("Successfully Like post with ID: " + likePostS.getId());
+    }
+
+    @PutMapping("/unlikePost")
+    public ResponseEntity<?> unlikePost(@RequestParam Long id) {
+        try {
+            Optional<LikeUnlikePost> unLikeOptional = likePostRepo.findById(id);
+
+            if (unLikeOptional.isPresent()) {
+                LikeUnlikePost unlikePost = unLikeOptional.get();
+                unlikePost.setIsLike(false);
+                likePostRepo.save(unlikePost);
+                return ResponseEntity.ok("Successfully unlike the post!");
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    @GetMapping("/getLikeUnlikePost")
+    public ResponseEntity<LikeUnlikePostDTO> getLikeUnlikePost(
+            @RequestParam Long userId,
+            @RequestParam Long postId) {
+        try {
+            // Find the Like/Unlike Post using both userId and postId
+            LikeUnlikePostDTO likeUnlikePost = likePostRepo.findFirstByUserIdAndPostIdOrderByCreatedDateDesc(userId, postId)
+                    .map(likeUnlikePostDTOMapper)
+                    .orElse(null);
+
+            if (likeUnlikePost == null) {
+                return ResponseEntity.ok(null);
+            }
+
+            return ResponseEntity.ok(likeUnlikePost);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
 
 
 }
