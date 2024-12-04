@@ -1,7 +1,6 @@
 package com.socMediaApp.dto;
 
 import com.socMediaApp.model.Comment;
-import com.socMediaApp.model.Post;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
