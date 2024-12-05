@@ -1,5 +1,7 @@
 package com.socMediaApp.service;
 
+import java.util.Optional;
+
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -44,14 +46,22 @@ public class AuthenticationService {
     }
 
     public AuthenticationResponse authenticate(User request) {
+        String loginIdentifier = request.getUsername();
+    
+        Optional<User> userOptional = loginIdentifier.contains("@")
+            ? userRepo.findByEmail(loginIdentifier)  
+            : userRepo.findByUsername(loginIdentifier); 
+        
+        User user = userOptional.orElseThrow(() -> new RuntimeException("User not found"));
+    
         authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
+            new UsernamePasswordAuthenticationToken(user.getUsername(), request.getPassword())  
         );
-
-        User user = userRepo.findByUsername(request.getUsername()).orElseThrow();
+    
         String token = jwtService.generateToken(user);
-
+    
         return new AuthenticationResponse(token);
     }
+    
 
 }

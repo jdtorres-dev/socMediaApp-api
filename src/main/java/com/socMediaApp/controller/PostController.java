@@ -8,9 +8,10 @@ import com.socMediaApp.model.User;
 import com.socMediaApp.repository.CommentRepository;
 import com.socMediaApp.repository.LikeUnlikePostRepo;
 import com.socMediaApp.repository.PostRepository;
-import com.socMediaApp.repository.UserRespository;
 import com.socMediaApp.service.PostService;
 import com.socMediaApp.service.UserService;
+
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -239,5 +240,81 @@ public class PostController {
         }
     }
 
+     @GetMapping("/getPostsByUser/{id}")
+    public ResponseEntity<?> getPostsByUser(@PathVariable Long id) {
+        try {
+            List<Post> posts = postRepository.findByUserIdAndIsDeleteFalseOrderByCreatedDateDesc(id);
 
+            if (posts.isEmpty()) {
+                return ResponseEntity.ok(List.of());
+            }
+
+            List<PostDTO> postDTOs = posts.stream()
+            .map(postDTOMapper::apply)
+            .toList();
+
+            return ResponseEntity.ok(postDTOs);
+        } catch (Exception e) {
+            e.printStackTrace();
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An error occurred while retrieving posts.");
+        }
+    }
+
+    @PutMapping("/deletePost/{id}")
+    public ResponseEntity<?> softDeletePost(@PathVariable Long id, @RequestBody Post post) {
+
+        Optional<Post> result = postRepository.findById(id);
+
+        if (result.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                .body("Post does not exist.");
+        }
+
+        try {
+            Post existing = result.get();
+        
+            BeanUtils.copyProperties(post, existing, "id", "userId", "body", "imageUrl", "createdDate"); 
+
+            existing.setIsDelete(true);
+            
+            postService.updatePost(existing);
+
+            return ResponseEntity.ok("Post successfully deleted!");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                .body("An error occurred while processing the request.");
+        }
+    }
+
+    @PutMapping("/updatePost/{id}")
+    public ResponseEntity<?> updatePostById(@PathVariable Long id, @RequestBody Post post) {
+
+        Optional<Post> result = postRepository.findById(id); 
+
+        if (result.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                .body("Post does not exist.");
+        }
+
+        try {
+            Post existing = result.get();
+        
+            BeanUtils.copyProperties(post, existing, "id", "userId", "isDelete", "createdDate"); 
+
+            existing.setBody(post.getBody());
+            existing.setImageUrl(post.getImageUrl());
+            // existing.setCreatedDate(LocalDateTime.now());
+            // existing.setCreatedDate(post.getCreatedDate());
+            
+            postService.updatePost(existing);
+
+            return ResponseEntity.ok("User update successful");
+        } catch (Exception e) {
+            e.printStackTrace(System.err);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                .body("An error occurred while processing the request.");
+        }
+    }
 }

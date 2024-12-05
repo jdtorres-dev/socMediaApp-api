@@ -13,7 +13,12 @@ public class PostService {
     @Autowired
     PostRepository postRepo;
 
-    public Optional<Post> getCurrentPost(Long id) { return postRepo.findById(id); }
+    public Optional<Post> getCurrentPost(Long id) { 
+        return postRepo.findById(id); 
+    }
 
+    public Post updatePost(Post post) {
+        return postRepo.save(post);
+    }
 
 }
