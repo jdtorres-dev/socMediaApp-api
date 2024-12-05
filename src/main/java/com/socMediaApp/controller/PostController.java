@@ -73,7 +73,7 @@ public class PostController {
     public ResponseEntity<List<PostDTO>> getAllPost() {
         try {
             // Fetch all posts ordered by created date in ascending order
-            List<PostDTO> posts = postRepository.findAllByOrderByCreatedDateDesc()
+            List<PostDTO> posts = postRepository.findByIsDeleteFalseOrderByCreatedDateDesc()
                     .stream()
                     .map(postDTOMapper)
                     .collect(Collectors.toList());
