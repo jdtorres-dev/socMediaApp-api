@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 
 @Entity
@@ -35,6 +34,9 @@ public class Post {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @Column(nullable = false)
+    private Boolean isDelete = false;
+
     @Override
     public String toString() {
         return "Post{" +
@@ -43,6 +45,7 @@ public class Post {
                 ", imageUrl='" + imageUrl + '\'' +
                 ", createdDate=" + createdDate +
                 ", user=" + user +
+                ", isDelete=" + isDelete +
                 '}';
     }
 }

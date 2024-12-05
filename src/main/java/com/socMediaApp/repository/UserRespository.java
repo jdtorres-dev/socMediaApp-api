@@ -19,5 +19,7 @@ public interface UserRespository extends JpaRepository<User, Long>{
     @SuppressWarnings("null")
     Optional<User> findById(Long id);
 
+    Optional<User> findByEmail(String email);
+
     
 }
