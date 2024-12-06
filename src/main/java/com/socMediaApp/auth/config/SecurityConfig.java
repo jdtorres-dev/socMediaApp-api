@@ -77,7 +77,10 @@ public class SecurityConfig {
                             "/post/getCommentById",
                             "/post/likePost",
                             "/post/unlikePost",
-                            "/post/getLikeUnlikePost").permitAll()
+                            "/post/getLikeUnlikePost",
+                            "/post/likeComment",
+                            "/post/unlikeComment",
+                            "/post/getLikeUnlikeComment").permitAll()
                     .anyRequest().authenticated())
                     .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class)
                     .exceptionHandling((exceptionHandling) -> exceptionHandling.authenticationEntryPoint(exceptionHandler));
