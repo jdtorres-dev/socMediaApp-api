@@ -2,12 +2,15 @@ package com.socMediaApp.controller;
 
 import com.socMediaApp.dto.*;
 import com.socMediaApp.model.Comment;
+import com.socMediaApp.model.LikeUnlikeComment;
 import com.socMediaApp.model.LikeUnlikePost;
 import com.socMediaApp.model.Post;
 import com.socMediaApp.model.User;
 import com.socMediaApp.repository.CommentRepository;
+import com.socMediaApp.repository.LikeUnlikeCommentRepository;
 import com.socMediaApp.repository.LikeUnlikePostRepo;
 import com.socMediaApp.repository.PostRepository;
+import com.socMediaApp.service.CommentService;
 import com.socMediaApp.service.PostService;
 import com.socMediaApp.service.UserService;
 
@@ -34,6 +37,9 @@ public class PostController {
     private PostService postService;
 
     @Autowired
+    private CommentService commentService;
+
+    @Autowired
     private PostRepository postRepository;
 
     @Autowired
@@ -43,6 +49,9 @@ public class PostController {
     private LikeUnlikePostRepo likePostRepo;
 
     @Autowired
+    private LikeUnlikeCommentRepository likeCommentRepo;
+
+    @Autowired
     PostDTOMapper postDTOMapper;
 
     @Autowired
@@ -50,6 +59,9 @@ public class PostController {
 
     @Autowired
     LikeUnlikePostDTOMapper likeUnlikePostDTOMapper;
+
+    @Autowired
+    LikeUnlikeCommentDtoMapper likeUnlikeCommentDtoMapper;
 
     @PostMapping("/createPost")
     public ResponseEntity<?> createPost(@RequestBody Post post) {
@@ -202,6 +214,33 @@ public class PostController {
         return ResponseEntity.ok("Successfully Like post with ID: " + likePostS.getId());
     }
 
+    @PostMapping("/likeComment")
+    public ResponseEntity<?> likeComment(@RequestBody LikeUnlikeComment likeComment ) {
+        try {
+            Optional<User> user = userService.getCurrentUser(likeComment.getUser().getId());
+            Optional<Comment> comment = commentService.getCurrentComment(likeComment.getComment().getId());
+
+            if (user.isEmpty() || comment.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("No user or post was found.");
+            }
+    
+            likeComment.setUser(user.get());
+            likeComment.setComment(comment.get());
+            likeComment.setIsLike(true);
+            likeComment.setCreatedDate(LocalDateTime.now());
+    
+            likeCommentRepo.save(likeComment);
+    
+            return ResponseEntity.ok("Successfully liked comment");
+        } catch(Exception e) {
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An error occurresd while processing the request.");
+        }
+       
+    }
+
     @PutMapping("/unlikePost")
     public ResponseEntity<?> unlikePost(@RequestParam Long id) {
         try {
@@ -212,6 +251,24 @@ public class PostController {
                 unlikePost.setIsLike(false);
                 likePostRepo.save(unlikePost);
                 return ResponseEntity.ok("Successfully unlike the post!");
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    @PutMapping("/unlikeComment")
+    public ResponseEntity<?> unlikeComment(@RequestParam Long id) {
+        try {
+            Optional<LikeUnlikeComment> unLikeOptional = likeCommentRepo.findById(id);
+
+            if (unLikeOptional.isPresent()) {
+                LikeUnlikeComment unlikeComment = unLikeOptional.get();
+                unlikeComment.setIsLike(false);
+                likeCommentRepo.save(unlikeComment);
+                return ResponseEntity.ok("Successfully unlike the comment!");
             } else {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
             }
@@ -235,6 +292,26 @@ public class PostController {
             }
 
             return ResponseEntity.ok(likeUnlikePost);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    @GetMapping("/getLikeUnlikeComment")
+    public ResponseEntity<LikeUnlikeCommentDto> getLikeUnlikeComment(
+            @RequestParam Long userId,
+            @RequestParam Long commentId) {
+
+        try {
+            LikeUnlikeCommentDto likeUnlikeComment = likeCommentRepo.findFirstByUserIdAndCommentIdOrderByCreatedDateDesc(userId, commentId)
+                    .map(likeUnlikeCommentDtoMapper)
+                    .orElse(null);
+
+            if (likeUnlikeComment == null) {
+                return ResponseEntity.ok(null);
+            }
+
+            return ResponseEntity.ok(likeUnlikeComment);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
