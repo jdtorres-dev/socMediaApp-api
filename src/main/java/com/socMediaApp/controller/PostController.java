@@ -317,6 +317,40 @@ public class PostController {
         }
     }
 
+    @GetMapping("/getAllLikeComment")
+    public ResponseEntity<Long> getAllLikeComment(
+            @RequestParam Long commentId) {
+
+        try {
+            Long likeCount = likeCommentRepo.countLikesByCommentId(commentId);
+                
+            if (likeCount == null || likeCount == 0) {
+                return ResponseEntity.ok(0L);  
+            }
+
+            return ResponseEntity.ok(likeCount);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    @GetMapping("/getAllLikePost")
+    public ResponseEntity<Long> getAllLikePost(
+            @RequestParam Long postId) {
+
+        try {
+            Long likeCount = likePostRepo.countLikesByPostId(postId);
+                
+            if (likeCount == null || likeCount == 0) {
+                return ResponseEntity.ok(0L);  
+            }
+
+            return ResponseEntity.ok(likeCount);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
      @GetMapping("/getPostsByUser/{id}")
     public ResponseEntity<?> getPostsByUser(@PathVariable Long id) {
         try {
