@@ -37,7 +37,7 @@ public class User implements UserDetails{
     private String password;
 
     @Lob
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT", nullable = true)
     private String imageUrl;
 
     @Override
