@@ -101,7 +101,7 @@ public class PostController {
     @GetMapping("/getPost/{id}")
     public ResponseEntity<PostDTO> getPostById(@PathVariable Long id) {
         try {
-            Post post = postRepository.findById(id)
+            Post post = postRepository.findByIdAndIsDeleteFalse(id)
                     .orElseThrow(() -> new ResourceNotFoundException("Post not found with id: " + id));
 
             // Map the post entity to a PostDTO

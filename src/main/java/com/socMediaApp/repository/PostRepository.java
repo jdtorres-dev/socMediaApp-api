@@ -15,7 +15,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     List<Post> findByIsDeleteFalseOrderByCreatedDateDesc();
 
-    Optional<Post> findById(Integer id);
+    Optional<Post> findByIdAndIsDeleteFalse(Long id);
 
     List<Post> findByUserIdAndIsDeleteFalseOrderByCreatedDateDesc(Long id);
 
