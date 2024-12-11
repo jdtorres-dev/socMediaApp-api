@@ -37,6 +37,10 @@ public class AuthenticationService {
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setImageUrl(request.getImageUrl());
+        user.setInterest(request.getInterest());
+        user.setContact(request.getContact());
+        user.setAddress(request.getAddress());
+        user.setBio(request.getBio());
         
         user = userRepo.save(user);
 

@@ -89,6 +89,10 @@ public class UserController {
             existing.setName(user.getName());
             existing.setUsername(user.getUsername());
             existing.setEmail(user.getEmail());
+            existing.setContact(user.getContact());
+            existing.setInterest(user.getInterest());
+            existing.setAddress(user.getAddress());
+            existing.setBio(user.getBio());
             existing.setImageUrl(user.getImageUrl());
 
             if (user.getPassword() != null && !user.getPassword().isEmpty()) {
