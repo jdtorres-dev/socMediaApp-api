@@ -36,6 +36,18 @@ public class User implements UserDetails{
     @Column(nullable = false)
     private String password;
 
+    @Column(nullable = true)
+    private String contact;
+
+    @Column(nullable = true)
+    private String interest;
+
+    @Column(nullable = true)
+    private String address;
+
+    @Column(nullable = true)
+    private String bio;
+
     @Lob
     @Column(columnDefinition = "TEXT", nullable = true)
     private String imageUrl;
